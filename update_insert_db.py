@@ -1,3 +1,4 @@
+import os
 import json
 import psycopg2
 from decouple import config
@@ -7,13 +8,12 @@ import pru_db as pru
 import horizontal_db as horizontal
 import vertical_db as vertical
 
-
 db_host = config('DB_HOST', default='localhost')
 db_name = config('DB_NAME', default='Teste')
 db_user = config('DB_USER', default='postgres')
 db_password = config('DB_PASSWORD', default='teste')
 
-conexao = psycopg2.connect(
+connection = psycopg2.connect(
     host=db_host,
     database=db_name,
     user=db_user,
@@ -24,58 +24,78 @@ dict_type = {
     'DSEG': disp_seg,
     'PRU': pru,
     'SH': horizontal,
-    'idade_': vertical
+    'SV': vertical
 }
 
-def db_execute(dicionario, chave_dicionario_db):
-    query, values = dict_type[chave_dicionario_db].select_query(dicionario)
-    cursor.execute(query, values)
-    resultado = cursor.fetchone()
+id_mapping = {"DSEG": "ds_id", "PRU": "ru_id", "SH": "ID", "SV": "ID"}
 
-    if resultado:
+def get_id_key(key_dictionary_db):
+    return id_mapping.get(key_dictionary_db, "ID")
+
+def db_execute(dictionary, key_dictionary_db):
+    query, values = dict_type[key_dictionary_db].select_query(dictionary)
+    cursor.execute(query, values)
+    result = cursor.fetchone()
+   
+    id = get_id_key(key_dictionary_db)
+
+    if result:
         try:
-            update_query, update_values  = dict_type[chave_dicionario_db].update_query(dicionario)
+            update_query, update_values  = dict_type[key_dictionary_db].update_query(dictionary, result)
+            #print(update_query)
+            #print(update_values)
             cursor.execute(update_query, update_values)
-            print("UPDATE bem-sucedido. ", dicionario['ID'])
+            print(f"UPDATE bem-sucedido na tabela de {key_dictionary_db}. De ID {dictionary[id]} no JSON")
         except Exception as e:
-            print(f"Erro ao executar o INSERT: {e}")
+            print(f"Erro ao executar o UPDATE do elemento {dictionary[id]}: {e}")
         finally:
-            conexao.commit()
+            connection.commit()
     else:
         try:
-            insert_query, insert_values = dict_type[chave_dicionario_db].insert_query(dicionario)
-            print(insert_query, insert_values)
-            input()
+            insert_query, insert_values = dict_type[key_dictionary_db].insert_query(dictionary)
+            #print(update_query)
+            #print(update_values)
             cursor.execute(insert_query, insert_values)
-            print("INSERT bem-sucedido. ", dicionario['ID'])
+            print(f"INSERT bem-sucedido na tabela de {key_dictionary_db}. De ID {dictionary[id]} no JSON")
         except Exception as e:
-            print(f"Erro ao executar o INSERT: {e}")
+            print(f"Erro ao executar o INSERT do elemento {dictionary[id]}: {e}")
         finally:
-            conexao.commit()
+            connection.commit()
 
-if __name__ == "__main__": 
-    path_file_json  = 'JSON/SH_CAMAPANHA_6.json'
-    
+
+def process_file_json(path_file_json):
     with open(path_file_json, 'r', encoding='utf-8') as arquivo_json:
-        data_dict = json.load(arquivo_json)
+            data_dict = json.load(arquivo_json)
 
-    input(f'O dicionário tem {len(data_dict)} elementos.')
+    input(f'\n\nO arquivo {path_file_json} \ntem {len(data_dict)} elementos.')
 
-    cursor = conexao.cursor()
-    for dicionario in data_dict:
+    for dictionary in data_dict:
         if "DSEG" in path_file_json:
-            db_execute(dicionario, "DSEG")
+            db_execute(dictionary, "DSEG")
 
         elif "PRU" in path_file_json:
-            db_execute(dicionario, "PRU")
+            db_execute(dictionary, "PRU")
         
         elif "SH" in path_file_json:
-            db_execute(dicionario, "SH")
+            db_execute(dictionary, "SH")
 
+        elif "SV" in path_file_json:
+            db_execute(dictionary, "SV")
+
+    print(f'\n{len(data_dict)} elementos atualizado/inserido com SUCESSO')
+
+
+if __name__ == "__main__": 
+    json_directory = 'JSON/'
+    cursor = connection.cursor()
+
+    for file_name in os.listdir(json_directory):
+        if file_name.endswith(".json"):
+            caminho_arquivo = os.path.join(json_directory, file_name)
+            process_file_json(caminho_arquivo)
+    
     cursor.close()
-    conexao.close()
-
-    print(f'{len(data_dict)} elementos atualizado/inserido com SUCESSO')
+    connection.close()
     print("FIM")
 
 
