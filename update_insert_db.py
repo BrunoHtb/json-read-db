@@ -66,21 +66,9 @@ def db_execute(dictionary, key_dictionary_db):
 def process_file_json(path_file_json):
     with open(path_file_json, 'r', encoding='utf-8') as arquivo_json:
             data_dict = json.load(arquivo_json)
-
-    input(f'\n\nO arquivo {path_file_json} \ntem {len(data_dict)} elementos.')
-
+            
     for dictionary in data_dict:
-        if "DSEG" in path_file_json:
-            db_execute(dictionary, "DSEG")
-
-        elif "PRU" in path_file_json:
-            db_execute(dictionary, "PRU")
-        
-        elif "SH" in path_file_json:
-            db_execute(dictionary, "SH")
-
-        elif "SV" in path_file_json:
-            db_execute(dictionary, "SV")
+        db_execute(dictionary, path_file_json.split('/')[-1].split('_')[0])
 
     print(f'\n{len(data_dict)} elementos atualizado/inserido com SUCESSO')
 
