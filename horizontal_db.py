@@ -1,8 +1,8 @@
 from psycopg2 import sql
 
 def select_query(dictionary):
-    query = sql.SQL('SELECT * FROM public.retro_horizontal WHERE "AUDITORIA" = %s AND "RODOVIA" = %s AND "KM"=%s AND "METROS"=%s AND "DATA"= %s' )
-    values = (dictionary['AUDITORIA'], dictionary['RODOVIA'], str(dictionary['KM']), str(dictionary['METROS']), str(dictionary['DATA']))
+    query = sql.SQL('SELECT * FROM public.retro_horizontal WHERE "AUDITORIA" = %s AND "RODOVIA" = %s AND "KM_I"=%s AND "METRO_I"=%s AND "DATA"= %s' )
+    values = (dictionary['AUDITORIA'], dictionary['RODOVIA'], str(dictionary['KM_I']), str(dictionary['METRO_I']), str(dictionary['DATA']))
     return query, values
 
 def insert_query(dictionary):
