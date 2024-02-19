@@ -81,7 +81,7 @@ if __name__ == "__main__":
         if file_name.endswith(".json"):
             caminho_arquivo = os.path.join(json_directory, file_name)
             process_file_json(caminho_arquivo)
-    
+
     cursor.close()
     connection.close()
     print("FIM")
