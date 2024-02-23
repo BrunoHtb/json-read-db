@@ -42,8 +42,6 @@ def db_execute(dictionary, key_dictionary_db):
     if result:
         try:
             update_query, update_values  = dict_type[key_dictionary_db].update_query(dictionary, result)
-            #print(update_query)
-            #print(update_values)
             cursor.execute(update_query, update_values)
             print(f"UPDATE bem-sucedido na tabela de {key_dictionary_db}. De ID {dictionary[id]} no JSON")
         except Exception as e:
@@ -53,8 +51,6 @@ def db_execute(dictionary, key_dictionary_db):
     else:
         try:
             insert_query, insert_values = dict_type[key_dictionary_db].insert_query(dictionary)
-            #print(update_query)
-            #print(update_values)
             cursor.execute(insert_query, insert_values)
             print(f"INSERT bem-sucedido na tabela de {key_dictionary_db}. De ID {dictionary[id]} no JSON")
         except Exception as e:
@@ -65,7 +61,7 @@ def db_execute(dictionary, key_dictionary_db):
 
 def process_file_json(path_file_json):
     with open(path_file_json, 'r', encoding='utf-8') as arquivo_json:
-            data_dict = json.load(arquivo_json)
+        data_dict = json.load(arquivo_json)
             
     for dictionary in data_dict:
         db_execute(dictionary, path_file_json.split('/')[-1].split('_')[0])
