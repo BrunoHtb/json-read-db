@@ -12,7 +12,7 @@ def insert_query(dictionary):
     values = []
 
     dictionary["KM"] = set_variable_lenght(dictionary["KM"])
-    dictionary["METRO"] = set_variable_lenght(dictionary["METRO"])
+    dictionary["METROS"] = set_variable_lenght(dictionary["METROS"])
 
     for column, value in list(dictionary.items())[1:]: 
         if column in integer_columns and value is not None:
@@ -28,9 +28,10 @@ def insert_query(dictionary):
 def update_query(dictionary, result):
     integer_columns = ["AUDITORIA", "KM_I", "METRO_I", "ID_USUARIO"]
     set_clause = ', '.join([f'"{column}" = %s' for column in dictionary.keys() if column != 'ID'])
-    dictionary["KM"] = set_variable_lenght(dictionary["KM"])
-    dictionary["METRO"] = set_variable_lenght(dictionary["METRO"])
     values = []
+    
+    dictionary["KM"] = set_variable_lenght(dictionary["KM"])
+    dictionary["METROS"] = set_variable_lenght(dictionary["METROS"])
 
     for column, value in list(dictionary.items())[1:]:
         if column in integer_columns and value is not None:
@@ -46,9 +47,10 @@ def update_query(dictionary, result):
 
 
 def set_variable_lenght(variable):
-    if len(variable) == 2:
-        return "0" + variable
-    elif len(variable) == 1:
-        return "00" + variable
+    variable_str = str(variable)
+    if len(variable_str) == 2:
+        return "0" + variable_str
+    elif len(variable_str) == 1:
+        return "00" + variable_str
 
-    return variable
+    return variable_str
