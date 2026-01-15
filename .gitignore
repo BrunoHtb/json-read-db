@@ -5,8 +5,7 @@ __pycache__/
 venv/
 
 # Secrets / env
-.env
-*.env
+config.env
 
 # Input data (do not commit real JSON batches)
 data/input/
